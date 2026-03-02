@@ -5,6 +5,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import { api } from '../services/api';
 import ThemedInvoice from '../components/ThemedInvoice';
 import Portal from '../components/Portal';
+import CartItemCard from '../components/billing/CartItemCard';
 
 interface BillingProps {
     products: Product[];
@@ -487,47 +488,13 @@ const Billing: React.FC<BillingProps> = ({ products, customers = [], onSaleSucce
                         </div>
                     ) : (
                         cart.map(item => (
-                            <div key={item.id} className="bg-slate-50 p-3 lg:p-4 rounded border border-transparent hover:border-slate-200 transition-all flex gap-4">
-                                <div className="w-16 h-16 bg-white border border-slate-100 rounded-lg overflow-hidden flex-shrink-0">
-                                    {item.image ? (
-                                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-black text-xl uppercase">
-                                            {item.name?.charAt(0) || '?'}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="flex flex-col truncate">
-                                            <span className="font-black text-slate-900 text-sm truncate">{item.name}</span>
-                                            {item.mrp > item.price && (
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] text-slate-400 line-through font-bold">₹{item.mrp}</span>
-                                                    <span className="text-[10px] text-green-600 font-black">Save ₹{(item.mrp - item.price).toFixed(0)}</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <button onClick={() => removeFromCart(item.id)} className="text-slate-300 hover:text-red-500 ml-2"><Trash2 className="w-3 h-3" /></button>
-                                    </div>
-
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3 bg-white border border-slate-100 rounded-sm p-1">
-                                            <button onClick={() => updateQty(item.id, -1)} className="p-1 text-slate-400"><Minus className="w-2.5 h-2.5" /></button>
-                                            <span className="text-xs font-black">{item.quantity}</span>
-                                            <button onClick={() => updateQty(item.id, 1)} className="p-1 text-slate-400"><Plus className="w-2.5 h-2.5" /></button>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="font-black text-slate-900 leading-none">₹{((item.price || 0) * (item.quantity || 0)).toLocaleString()}</p>
-                                            {(item.mrp || 0) > (item.price || 0) && (
-                                                <p className="text-[9px] font-bold text-green-600 uppercase tracking-tighter mt-1">Total Saving: ₹{(((item.mrp || 0) - (item.price || 0)) * (item.quantity || 0)).toLocaleString()}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <CartItemCard
+                                key={item.id}
+                                item={item}
+                                onUpdateQty={updateQty}
+                                onRemove={removeFromCart}
+                            />
                         ))
-
                     )}
                 </div>
 
