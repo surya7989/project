@@ -754,7 +754,7 @@ const Storefront: React.FC<Props> = ({
                                         <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 12 }}>💳 Payment Method</div>
                                         <div className="sf-pay-grid">
                                             {[{ v: 'upi', l: '📱 UPI' }, { v: 'cash', l: '💵 Cash' }, { v: 'card', l: '💳 Card' }, { v: 'bank_transfer', l: '🏦 Bank' }].map(m => (
-                                                <button key={m.v} className={`sf-pay-btn ${payMethod === m.v ? 'active' : ''}`} onClick={() => setPayMethod(m.v)}>{m.l}</button>
+                                                <button key={m.v} className={`sf-pay-btn ${payMethod === m.v ? 'active' : ''}`} onClick={() => setPayMethod(m.v as PaymentMethod)}>{m.l}</button>
                                             ))}
                                         </div>
                                     </div>

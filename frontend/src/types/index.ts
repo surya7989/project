@@ -1,4 +1,17 @@
+import { z } from 'zod';
+import * as schemas from '../schemas';
+
+/**
+ * SHARED CONTRACT TYPES
+ * These types reflect the expectations of the backend API and database schema.
+ * Modifications here should be coordinated with the backend team.
+ */
+
 export type Page = 'login' | 'dashboard' | 'billing' | 'inventory' | 'customers' | 'vendors' | 'analytics' | 'settings' | 'admin' | 'online-store' | 'storefront' | 'invoice:create' | 'product:manage' | 'settings:manage' | 'user:manage' | 'payment:manage' | 'audit:read' | 'inventory:adjust' | 'admin-access';
+
+export type ProductStatus = 'In Stock' | 'Low Stock' | 'Out of Stock';
+export type TaxType = 'Inclusive' | 'Exclusive';
+export type ReturnStatus = 'Returnable' | 'Not Returnable';
 
 export interface Product {
     id: string;
@@ -7,7 +20,7 @@ export interface Product {
     price: number;
     purchasePrice: number;
     stock: number;
-    status: 'In Stock' | 'Low Stock' | 'Out of Stock';
+    status: ProductStatus;
     image?: string;
     sku: string;
     gstRate: number;
@@ -16,13 +29,12 @@ export interface Product {
     discountPercentage: number;
     expiryDate?: string;
     profit?: number;
-    returns?: 'Returnable' | 'Not Returnable';
+    returns?: ReturnStatus;
     hsnCode?: string;
-    taxType: 'Inclusive' | 'Exclusive';
+    taxType: TaxType;
     minStock?: number;
     description?: string;
 }
-
 
 export interface Customer {
     id: string;
@@ -35,11 +47,9 @@ export interface Customer {
     lastTransaction?: string;
     totalInvoices?: number;
     address?: string;
-    // Channel: how this customer interacts with the business
     channel?: 'offline' | 'online' | 'both';
-    // Online store extras
-    addresses?: any[];
-    wishlist?: any[];
+    addresses?: StoreAddress[];
+    wishlist?: { productId: string; addedAt: string }[];
     totalOrders?: number;
     totalSpent?: number;
     lastLogin?: string;
@@ -66,21 +76,24 @@ export interface CartItem extends Product {
 
 export type PaymentMethod = 'cash' | 'upi' | 'card' | 'split' | 'bank_transfer';
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
+export type PaymentStatus = 'Paid' | 'Unpaid' | 'Partial';
 
 export interface Transaction {
     id: string;
-    customerId: string;
+    customerId?: string;
     items: CartItem[];
     total: number;
-    gstAmount?: number;
+    subtotal?: number;
+    gstAmount: number;
     date: string;
     method: PaymentMethod;
-    status: 'Paid' | 'Unpaid' | 'Partial';
+    status: PaymentStatus;
     source: 'online' | 'offline';
     orderStatus?: OrderStatus;
     paidAmount?: number;
     assignedStaff?: string;
     deliveryStatus?: string;
+    timestamp?: number;
 }
 
 export interface PurchaseOrder {
@@ -88,7 +101,7 @@ export interface PurchaseOrder {
     vendorId: string;
     amount: number;
     date: string;
-    status: 'Paid' | 'Unpaid' | 'Partial';
+    status: PaymentStatus;
 }
 
 // Phase 2: RBAC Types
@@ -99,10 +112,9 @@ export interface User {
     id: string;
     name: string;
     email: string;
-    role: UserRole;
+    role: UserRole | string;
     permissions: Record<string, AccessLevel>;
 }
-
 
 export interface StoreAddress {
     id: string;
@@ -126,3 +138,4 @@ export interface StoreCustomerProfile {
     totalOrders: number;
     totalSpent: number;
 }
+

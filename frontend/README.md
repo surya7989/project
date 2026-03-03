@@ -902,6 +902,32 @@ nexarats---secure-&-simple-inventory-control/
 
 ---
 
+## 14. Developer Handoff (Backend Integration)
+
+To facilitate smooth integration with the backend, the following tools and contracts have been implemented:
+
+### 1. Unified API Schemas (Zod)
+Located in `src/schemas/index.ts`. These schemas define the **validation contract** for all core entities (Products, Customers, Invoices, etc.).
+- **Backend use:** These same schemas can be used in the Node.js backend for request body validation.
+- **Frontend use:** Form validation and type inference.
+
+### 2. API Service Layer
+Located in `src/services/api.service.ts`. This service abstracts all backend communication.
+- **Mock Mode:** Currently performs operations on `localStorage`, but follows standard REST/async patterns.
+- **Production Mode:** Switching `isMock = false` will trigger real HTTP calls via Axios to the base URL.
+- **Implementation:** It standardizes error handling and response types, acting as a "skeleton" for the backend to flesh out.
+
+### 3. Shared Types
+Located in `src/types/index.ts`. These types are aligned with the Prisma schema outlined in `backend.md`. They serve as the source of truth for data shapes across the app.
+
+### 4. Environment Configuration
+Template provided in `.env.example`. 
+- `VITE_API_BASE_URL`: Entry point for the backend.
+- `VITE_USE_MOCKS`: Toggle between `localStorage` and real API.
+
+---
+
 > **END OF SYSTEM MASTER BLUEPRINT**
+
 > This document represents a complete architectural analysis of the NEXA POS codebase.
 > All findings are based on static code analysis performed February 2026.

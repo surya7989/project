@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, Info, Package, DollarSign, Tag, Clock, BarChart3, Image as ImageIcon, Plus } from 'lucide-react';
-import { Product, Unit } from '../types';
+import { Product } from '../types';
 import Portal from './Portal';
 
 interface ProductModalProps {

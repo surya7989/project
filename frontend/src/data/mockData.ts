@@ -2,9 +2,19 @@ import { Product, Customer, Vendor, User } from '../types';
 
 export const DEFAULT_USERS: User[] = [
     {
+        id: '0',
+        name: 'Nexus Admin',
+        email: 'admin@nexarats.com',
+        role: 'Super Admin',
+        permissions: {
+            'dashboard': 'manage', 'billing': 'manage', 'inventory': 'manage', 'customers': 'manage', 'vendors': 'manage',
+            'analytics': 'manage', 'settings': 'manage', 'online-store': 'manage', 'admin': 'manage'
+        }
+    },
+    {
         id: '1',
-        name: 'Surya Teja',
-        email: 'surya@nexarats.com',
+        name: 'Demo Admin',
+        email: 'demo@nexarats.com',
         role: 'Super Admin',
         permissions: {
             'dashboard': 'manage', 'billing': 'manage', 'inventory': 'manage', 'customers': 'manage', 'vendors': 'manage',
@@ -13,8 +23,8 @@ export const DEFAULT_USERS: User[] = [
     },
     {
         id: '2',
-        name: 'Rahul Kumar',
-        email: 'saisurya7989@gmail.com',
+        name: 'Staff User',
+        email: 'staff@nexarats.com',
         role: 'Manager',
         permissions: {
             'dashboard': 'read', 'billing': 'manage', 'inventory': 'manage', 'customers': 'manage', 'vendors': 'manage',
@@ -84,6 +94,17 @@ export const DEFAULT_PRODUCTS: Product[] = [
 ];
 
 export const DEFAULT_CUSTOMERS: Customer[] = [
+    {
+        id: 'WALK-IN',
+        name: 'Walk-in Customer',
+        email: 'walkin@example.com',
+        phone: '1000000000',
+        totalPaid: 0,
+        pending: 0,
+        status: 'Paid',
+        lastTransaction: '',
+        totalInvoices: 0
+    },
     {
         id: 'CUST-1',
         name: 'Rahul Sharma',

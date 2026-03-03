@@ -50,26 +50,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
             // Seeding if empty
             if (prods.length === 0) {
-                const seeded = await api.products.seed(DEFAULT_PRODUCTS).catch(() => ({ products: DEFAULT_PRODUCTS }));
-                setProducts(seeded.products || DEFAULT_PRODUCTS);
+                await api.products.seed(DEFAULT_PRODUCTS).catch((err) => console.error('[SEED] Products seed failed:', err));
+                setProducts(DEFAULT_PRODUCTS);
             } else setProducts(prods);
 
             if (custs.length === 0) {
-                const seeded = await api.customers.seed(DEFAULT_CUSTOMERS).catch(() => ({ customers: DEFAULT_CUSTOMERS }));
-                setCustomers(seeded.customers || DEFAULT_CUSTOMERS);
+                await api.customers.seed(DEFAULT_CUSTOMERS).catch((err) => console.error('[SEED] Customers seed failed:', err));
+                setCustomers(DEFAULT_CUSTOMERS);
             } else setCustomers(custs);
 
             if (vends.length === 0) {
-                const seeded = await api.vendors.seed(DEFAULT_VENDORS).catch(() => ({ vendors: DEFAULT_VENDORS }));
-                setVendors(seeded.vendors || DEFAULT_VENDORS);
+                await api.vendors.seed(DEFAULT_VENDORS).catch((err) => console.error('[SEED] Vendors seed failed:', err));
+                setVendors(DEFAULT_VENDORS);
             } else setVendors(vends);
 
-            if (allUsers.length === 0) {
+            const defaultPassword = import.meta.env.VITE_DEFAULT_ADMIN_PASSWORD || 'demo1234';
+            // Seed if no users, OR if existing users are missing passwords (stale localStorage)
+            const needsReseed = allUsers.length === 0 || allUsers.every((u: any) => !u.password);
+            if (needsReseed) {
                 const usersWithPasswords = DEFAULT_USERS.map(u => ({
                     ...u,
-                    password: u.id === '1' ? 'admin123' : 'rahulkumar7989'
+                    password: defaultPassword
                 }));
-                await api.users.seed(usersWithPasswords).catch(() => { });
+                await api.users.seed(usersWithPasswords).catch((err) => console.error('[SEED] Users seed failed:', err));
             }
 
             setTransactions(txns);
@@ -93,6 +96,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setCurrentUser(user);
         setPage('dashboard');
     }, [setCurrentUser, setPage]);
+
+    React.useEffect(() => {
+        loadData();
+
+        // REAL-TIME SYNC: Listen for storage changes from other tabs
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key && e.key.startsWith('inv_')) {
+                console.log('[REAL-TIME] External storage change detected, syncing data...');
+                loadData();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [loadData]);
 
     const value = React.useMemo(() => ({
         products, setProducts,

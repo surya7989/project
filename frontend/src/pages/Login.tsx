@@ -72,8 +72,12 @@ const WarehouseIllustration = () => (
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
     const [loading, setLoading] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
-    const [email, setEmail] = useState('');
+    const [rememberMe, setRememberMe] = useState(() => {
+        return localStorage.getItem('inv_remember') === 'true';
+    });
+    const [email, setEmail] = useState(() => {
+        return localStorage.getItem('inv_remember') === 'true' ? (localStorage.getItem('inv_remembered_email') || '') : '';
+    });
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
@@ -86,8 +90,18 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             const result = await api.users.login(email, password);
 
             if (result.success && result.user) {
-                // Simulate JWT token storage
-                sessionStorage.setItem('inv_token', result.token || 'mock_jwt_token_' + result.user.id);
+                // Store token
+                sessionStorage.setItem('inv_token', result.token);
+
+                // Handle Remember Me
+                if (rememberMe) {
+                    localStorage.setItem('inv_remember', 'true');
+                    localStorage.setItem('inv_remembered_email', email);
+                } else {
+                    localStorage.removeItem('inv_remember');
+                    localStorage.removeItem('inv_remembered_email');
+                }
+
                 onLogin({
                     id: result.user.id,
                     name: result.user.name,
@@ -99,6 +113,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             }
 
             setError('Invalid email or password. Please try again.');
+            setLoading(false);
         } catch (apiErr: any) {
             setError(apiErr?.message || 'Login failed. Please check your credentials or connection.');
             setLoading(false);

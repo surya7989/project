@@ -10,7 +10,7 @@ import CartItemCard from '../components/billing/CartItemCard';
 interface BillingProps {
     products: Product[];
     customers?: Customer[];
-    onSaleSuccess: (cart: CartItem[], total: number, gstAmount: number, customerName?: string, customerPhone?: string, address?: string, source?: 'online' | 'offline', paidAmount?: number, method?: PaymentMethod) => void;
+    onSaleSuccess: (cart: CartItem[], total: number, gstAmount: number, customerName?: string, customerPhone?: string, address?: string, source?: 'online' | 'offline', paidAmount?: number, method?: PaymentMethod, customerId?: string) => void;
     user?: User | null;
     onRefresh?: () => Promise<void>;
 }
@@ -233,7 +233,7 @@ const Billing: React.FC<BillingProps> = ({ products, customers = [], onSaleSucce
         setTxnInfo(info);
         setIsSuccess(true);
         // Pass cashReceived as paidAmount and actual paymentMode to track correctly
-        onSaleSuccess(cart, grandTotal, finalGST, customerName, customerPhone, '', 'offline', cashReceived, paymentMode);
+        onSaleSuccess(cart, grandTotal, finalGST, customerName, customerPhone, '', 'offline', cashReceived, paymentMode, matchedCustomer?.id);
     };
 
     const resetBilling = () => {

@@ -75,6 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateBilling, onVisitStore, 
 
     const [timeFilter, setTimeFilter] = React.useState<'Daily' | 'Weekly' | 'Monthly'>('Weekly');
     const [showDatePicker, setShowDatePicker] = React.useState(false);
+    const [selectedDate, setSelectedDate] = React.useState('');
 
     // Compute real data from app state
     const inventoryValue = products.reduce((sum, p) => sum + p.price * p.stock, 0);
@@ -181,12 +182,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateBilling, onVisitStore, 
             for (let i = 23; i >= 0; i--) {
                 const d = new Date(now.getTime() - i * 60 * 60 * 1000);
                 const hourLabel = d.toLocaleTimeString('en-US', { hour: 'numeric', hour12: true });
+                const currentHour = d.getHours();
+                const currentDay = d.toDateString();
 
-                // Match transactions from today's date (mock data doesn't have hours, so we split today's total)
-                const isToday = d.toDateString() === now.toDateString();
-                const value = isToday ? (todaySales / 12) : 0; // Simplified distribution for visualization
+                // Match transactions from this specific hour
+                const hourTotal = validTransactions.filter(t => {
+                    if (!t.timestamp) return false;
+                    const tDate = new Date(t.timestamp);
+                    return tDate.getHours() === currentHour && tDate.toDateString() === currentDay;
+                }).reduce((sum, t) => sum + (Number(t.total) || 0), 0);
 
-                result.push({ name: hourLabel, value: Math.round(value) });
+                result.push({ name: hourLabel, value: hourTotal });
             }
         } else if (timeFilter === 'Weekly') {
             // Last 7 days
@@ -447,8 +453,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateBilling, onVisitStore, 
                                 {showDatePicker && (
                                     <div className="absolute top-full right-0 mt-2 bg-white p-3 rounded-lg border border-slate-100 shadow-xl z-50 min-w-[200px]">
                                         <p className="text-[10px] font-bold text-slate-400 mb-2">Select Date Scope</p>
-                                        <input type="date" className="w-full text-xs p-2 border border-slate-100 rounded outline-none mb-2" />
-                                        <button onClick={() => setShowDatePicker(false)} className="w-full bg-blue-600 text-white text-[10px] font-bold py-2 rounded">Apply</button>
+                                        <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="w-full text-xs p-2 border border-slate-100 rounded outline-none mb-2" />
+                                        <button onClick={() => { if (selectedDate) setTimeFilter('Daily'); setShowDatePicker(false); }} className="w-full bg-blue-600 text-white text-[10px] font-bold py-2 rounded">Apply</button>
                                     </div>
                                 )}
                             </div>
@@ -487,7 +493,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigateBilling, onVisitStore, 
                     {/* Vendor Payment Overview subtitle */}
                     <div className="flex items-center justify-between mb-4">
                         <p className="text-sm font-black text-slate-700">Vendor Payment Overview</p>
-                        <button className="text-[10px] font-bold text-slate-400 hover:text-blue-600 transition-colors">Filters</button>
+                        <p className="text-[10px] font-bold text-slate-400">All Time</p>
                     </div>
 
                     {/* Donut chart + Legend side by side */}

@@ -252,15 +252,15 @@ const StorefrontPage: React.FC = () => {
                 // Check if customer exists in POS DB
                 const existingInPOS = await api.customers.getOne(custId).catch(() => null);
                 if (existingInPOS) {
-                    await api.customers.update(custId, customerData).catch(() => { });
+                    await api.customers.update(custId, customerData).catch(err => console.error('[STORE] Customer update failed:', err));
                 } else {
-                    await api.customers.create(customerData).catch(() => { });
+                    await api.customers.create(customerData).catch(err => console.error('[STORE] Customer create failed:', err));
                 }
             } catch (err) {
                 console.error('POS Customer Sync failed:', err);
                 // Fallback to simple create/update
                 api.customers.update(custId, customerData).catch(() =>
-                    api.customers.create(customerData).catch(() => { })
+                    api.customers.create(customerData).catch(err => console.error('[STORE] Customer fallback create failed:', err))
                 );
             }
 
@@ -281,7 +281,7 @@ const StorefrontPage: React.FC = () => {
                     status: (update.stock === 0 ? 'Out of Stock' : update.stock < 10 ? 'Low Stock' : 'In Stock') as Product['status']
                 };
             }));
-            api.products.bulkUpdate(stockUpdates).catch(() => { });
+            api.products.bulkUpdate(stockUpdates).catch(err => console.error('[STORE] Stock sync failed:', err));
             setTimeout(() => loadProducts(), 1000);
         } catch (err) {
             console.error('Checkout error:', err);
